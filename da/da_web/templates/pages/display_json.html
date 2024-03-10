@@ -1,0 +1,57 @@
+{% extends "master.html" %}
+{% comment %} {% block title %}
+Display JSON Data
+{% endblock %}
+{% block content %}
+<h1>JSON Data</h1>
+    {{ html_table | safe }}
+    <h1>JSON Data</h1>
+    <ul>
+        {% for item in html_table %}
+            <li>Timestamp: {{ item.timestamp }}</li>
+            <li>Role: {{ item.role }}</li>
+            <li>Message: {{ item.message }}</li>
+            <br>
+        {% endfor %}
+    </ul>
+{% endblock %}  {% endcomment %}
+
+{% block title %}
+Display JSON Data
+{% endblock %}
+{% block content %}
+<style>
+    .message-container {
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .user-message {
+        float: right;
+        background-color: #DCF8C6;
+        padding: 10px;
+        border-radius: 10px;
+        clear: both;
+        margin-right: 10px;
+    }
+
+    .ai-model-message {
+        float: left;
+        background-color: #C7DFF2;
+        padding: 10px;
+        border-radius: 10px;
+        clear: both;
+        margin-left: 10px;
+    }
+</style>
+
+<h1>Conversation Log</h1>
+    {% for user_message, ai_model_message in messages %}
+        {% if user_message %}
+            <div class="user-message">{{ user_message }}</div>
+        {% endif %}
+        {% if ai_model_message %}
+            <div class="ai-model-message">{{ ai_model_message }}</div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

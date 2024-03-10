@@ -1,0 +1,25 @@
+{% extends "master.html" %}
+
+{% block title %}
+Load Conversations
+{% endblock %}
+
+
+{% block content %}
+<h1>Conversation Log</h1>
+    <div>
+        {% if conversation_log %}
+            <ul>
+                {% for entry in conversation_log %}
+                    <li>
+                        <strong>Timestamp:</strong> {{ entry.timestamp }}<br>
+                        <strong>Role:</strong> {{ entry.role }}<br>
+                        <strong>Message:</strong> {{ entry.message }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No conversation log entries found.</p>
+        {% endif %}
+    </div>
+{% endblock %}

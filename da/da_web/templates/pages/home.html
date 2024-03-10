@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulate Conversation</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Simulate Conversation</h1>
+    <div id="conversation"></div>
+    <textarea id="user_input" name="user_input" rows="4" cols="50"></textarea>
+    
+    <script>
+        $(document).ready(function() {
+            $('#user_input').on('input', function() {
+                var user_input = $(this).val();
+                $('#conversation').append('<p>User: ' + user_input + '</p>');
+                $(this).val('');
+                
+                // Send user input to the server
+                $.ajax({
+                    type: 'POST',
+                    url: '/simulate-conversation/',
+                    data: {
+                        'user_input': user_input,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        var ai_response = response.ai_response; // Define ai_response here
+                        $('#conversation').append('<p>AI: ' + ai_response + ', Solar Score: ' + response.solar_score + '</p>');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

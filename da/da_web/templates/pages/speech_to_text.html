@@ -1,0 +1,57 @@
+{% extends "master.html" %}
+
+{% block title %}
+Speech to Text
+{% endblock %}
+
+
+{% block content %}
+    <h1>Speech to Text</h1>
+    <button id="startRecord">Start Recording</button>
+    <button id="stopRecord">Stop Recording</button>
+    <textarea id="transcription" rows="10" cols="50" readonly></textarea>
+    
+    <script>
+        const startButton = document.getElementById('startRecord');
+        const stopButton = document.getElementById('stopRecord');
+        const transcriptionTextArea = document.getElementById('transcription');
+        let recognition = null;
+    
+        startButton.addEventListener('click', () => {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+    
+            recognition.onresult = (event) => {
+                const result = event.results[event.results.length - 1];
+                const text = result[0].transcript;
+                transcriptionTextArea.value += text;
+    
+                // Send the recognized text to the server
+                fetch('/convert_speech_to_text/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                })
+                .then(response => {
+                    // Handle response if needed
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            };
+    
+            recognition.start();
+        });
+    
+        stopButton.addEventListener('click', () => {
+            if (recognition) {
+                recognition.stop();
+            }
+        });
+    </script>
+    
+{% endblock %}
+

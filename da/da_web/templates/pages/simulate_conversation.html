@@ -1,0 +1,76 @@
+{% extends "master.html" %}
+
+{% block title %}
+Simulate Conversation
+{% endblock %}
+
+
+{% block content %}
+<h1>Simulate Conversation</h1>
+    <div class="chat-container" id="conversation"></div>
+    <form id="user_input_form">
+        <textarea id="user_input" name="user_input" rows="4" cols="50"></textarea>
+    </form>
+    <button onclick="endConversation()">End Conversation</button>
+
+    <script>
+        $(document).ready(function() {
+            $('#user_input').keydown(function(event) {
+                if (event.keyCode == 13 && !event.shiftKey) { // Check if Enter key is pressed without Shift
+                    event.preventDefault();
+                    var user_input = $(this).val().trim(); // Trim whitespace
+                    if (user_input !== '') { // Check if the input is not empty
+                        appendMessage('User', user_input, 'user-message');
+                        $(this).val(''); // Clear the text area
+                        sendUserInput(user_input);
+                    }
+                }
+            });
+        });
+
+        function sendUserInput(user_input) {
+            // Send user input to the server
+            $.ajax({
+                type: 'POST',
+                url: '/simulate-conversation/',
+                data: {
+                    'user_input': user_input,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    appendMessage('AI', response.ai_response, 'ai-message');
+                    $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        function appendMessage(sender, message, className) {
+            $('#conversation').append('<div class="message ' + className + '"><strong>' + sender + ':</strong> ' + message + '</div>');
+        }
+
+        function endConversation() {
+            // Run search_keywords function and display the results
+            $.ajax({
+                type: 'GET',
+                url: '/simulate-conversation/',
+                success: function(response) {
+                    // Display the results in the chat container
+                    for (var i = 0; i < response.length; i++) {
+                        var message = response[i];
+                        var role = message.role;
+                        var content = message.message;
+                        var className = (role === 'user') ? 'user-message' : 'ai-message';
+                        appendMessage(role.toUpperCase(), content, className);
+                    }
+                    $('#conversation').scrollTop($('#conversation')[0].scrollHeight);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+    </script>
+{% endblock %}
