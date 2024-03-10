@@ -57,10 +57,24 @@ def convert_speech_to_text(request):
     else:
         return render(request, 'pages/speech_to_text.html')
     
-
 def output_text(text):
-    with open("output.txt", "a") as f:
-        f.write(text + "\n")
+    try:
+        with open("da_web/output.txt", "r+") as f:
+            lines = f.readlines()
+            # Check if the last line matches the current text (to avoid duplicates)
+            if lines and text + "\n" == lines[-1]:
+                print("Duplicate text detected, skipping write.")
+                return  # Skip writing the text if it's a duplicate
+            
+            # If it's not a duplicate, append the text
+            f.write(text + "\n")
+    except FileNotFoundError:
+        # Handle the case where the file does not exist by creating it and writing the text
+        with open("output.txt", "w") as f:
+            f.write(text + "\n")
+# def output_text(text):
+#     with open("output.txt", "a") as f:
+#         f.write(text + "\n")
 
 # def __main__():
 #     keywords_to_search = ["company", "employer", "work for"]
@@ -186,6 +200,9 @@ def text_to_speech ():
 def word_value(): 
     return
 
+def feedback(request):
+    return render(request, 'pages/home.html')
+
 
 def word_recognition(user_input):
     door_to_door_sales_credential_phrases = [
@@ -240,6 +257,42 @@ def display_json_data(request):
 
     # Pass the messages list to the template
     return render(request, 'pages/display_json.html', {'messages': messages})
+
+
+def filter_user_messages(request):
+    # Create the conversation_data directory if it doesn't exist
+    conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
+    if not os.path.exists(conversation_data_dir):
+        os.makedirs(conversation_data_dir)
+    
+    # Construct the file path for the conversation log JSON file
+    file_name = 'conversation_log.json'
+    file_path = os.path.join(conversation_data_dir, file_name)
+    
+    # Check if the file exists to avoid FileNotFoundError
+    if not os.path.exists(file_path):
+        # Handle the case where the file does not exist
+        print("The file does not exist.")
+        return render(request, 'pages/error.html', {'error': 'The conversation log file does not exist.'})
+    
+    try:
+        # Attempt to load JSON data from file into a pandas DataFrame
+        df = pd.read_json(file_path, lines=True)  # Use lines=True if the file is newline-delimited JSON
+    except ValueError:
+        # If pd.read_json fails, fall back to manual loading and parsing
+        with open(file_path, 'r') as file:
+            try:
+                data = json.load(file)  # For standard JSON; for newline-delimited, use json.loads(file.read())
+            except json.JSONDecodeError:
+                # Handle JSON decoding error
+                return render(request, 'pages/error.html', {'error': 'Invalid JSON format in the file.'})
+        df = pd.DataFrame(data)
+    
+    # Filter rows where 'role' is 'user'
+    user_df = df[df['role'] == 'user']
+    
+    # Display only the user data
+    return render(request, 'pages/user_messages.html', {'messages': user_df})
 
 
 # # display_json_data WORKS!!!

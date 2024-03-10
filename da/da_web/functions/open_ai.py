@@ -31,7 +31,7 @@ def open_ai_conversation(user_input):
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a judge for grading public speaker's elevator pitch. You give them positive and negative feedback."},
+            {"role": "system", "content": "You are a judge for grading public speaker's elevator pitch. You give them positive and negative feedback. Look for words that need to be changed. give a suggestion on what the user should say."},
             
             # {"role": "system", "content": "You are a homeowner named Emily, who hears a knock at the door. you open up the door and see the person at the door looks like a salesman."},
             {"role": "user", "content": user_input}

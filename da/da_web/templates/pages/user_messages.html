@@ -1,0 +1,56 @@
+{% extends "master.html" %}
+
+{% block title %}
+user's messages
+{% endblock %}
+
+
+{% block content %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .message:last-child {
+            border-bottom: none;
+        }
+        .message-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .message-text {
+            font-size: 14px;
+        }
+    </style>
+
+    <div class="container">
+        <h2>User Messages</h2>
+        {{messages}}
+      {% comment %} {% if messages %} {% endcomment %}
+            {% for message in messages %}
+                <div class="message">
+                    <div class="message-header">Message ID: {{ message.message }}</div>
+                    <div class="message-text">{{ message.role }}</div>
+                </div>
+            {% endfor %}
+        {% comment %} {% elif %}
+            <p>No messages found.</p>
+        {% endif %}  {% endcomment %}
+    </div>
+{% endblock %}

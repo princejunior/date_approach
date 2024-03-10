@@ -6,10 +6,13 @@ urlpatterns = [
     path('', views.simulate_conversation, name='simulate_conversation'),
     path('simulate-conversation/', views.simulate_conversation, name='simulate_conversation'),
     path('load_conversations/', views.load_conversations, name='load_conversations'),
-    path('feedback/', views.simulate_conversation, name='simulate_conversation'),
+    path('feedback/', views.feedback, name='simulate_conversation'),
     path('search-keywords', views.search_keywords, name='search-keywords'),
     path('speech_to_text', views.convert_speech_to_text, name='speech_to_text'),
-    path('display', views. display_json_data, name=' display_json_data'),
+    path('display', views.display_json_data, name=' display_json_data'),
+    
+    path('user_messages', views.filter_user_messages, name='user_messages'),
+    
     
    
 ]
