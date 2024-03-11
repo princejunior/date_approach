@@ -3,8 +3,18 @@ import openai
 from django.conf import settings
 import json
 
-
 def chat_with_gpt(prompt):
+    """
+    Initiates a chat with the GPT-3.5 model using a specified prompt.
+    The chat completion simulates a poetic assistant specializing in creative explanations.
+
+    Parameters:
+    - prompt (str): The user's input to which the model will respond.
+
+    Returns:
+    - The chat model's response as a string.
+    """
+    # Create the chat completion with specified roles and content
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
@@ -14,6 +24,7 @@ def chat_with_gpt(prompt):
     )
     return completion.choices[0].message
 
+# Main function for running the chat in a loop until user exits
 if __name__ == "__main__":
     while True:
         user_input = input("You: ")
@@ -23,7 +34,17 @@ if __name__ == "__main__":
         response = chat_with_gpt(user_input)
         print("Chatbot: ",response)
     
+# Function to simulate a conversation with OpenAI's model given a user's input
 def open_ai_conversation(user_input):
+    """
+    Simulates a conversation where the model acts as a judge for grading public speaker's elevator pitches.
+
+    Parameters:
+    - user_input (str): The user's input or question to the model.
+
+    Returns:
+    - The model's response as a string, providing feedback and suggestions.
+    """
     # Set your OpenAI API key
     OpenAI.api_key = settings.OPENAI_API_KEY
 

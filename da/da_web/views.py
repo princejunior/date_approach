@@ -1,21 +1,23 @@
-# views.py
-from datetime import timezone,datetime
+# Importing necessary libraries and modules
+from datetime import datetime
 import os
 import json
-import csv
 import difflib
-
 import pandas as pd
 from django.conf import settings
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 
+# Importing custom functions from the project
 from .functions.recognition_functions import solar_recognition_function, homeowner_ai
-from .functions.open_ai import open_ai_conversation, open_ai_conversation_ex
-# from .functions.speech_to_text import speech_to_text
+from .functions.open_ai import open_ai_conversation
 from .functions.text_to_speech import text_to_speech
 import speech_recognition as sr
 
+# Views for handling different features of the application
+
+
+# Converts speech from the microphone input into text using Google's speech recognition.
 def speech_to_text():
     # Create a recognizer object
     r = sr.Recognizer()
@@ -39,6 +41,8 @@ def speech_to_text():
             print("Unknown error occurred")
             return None
 
+# Converts speech to text upon receiving a POST request with audio data.
+# Renders a template with the converted text or an error message.
 def convert_speech_to_text(request):
     
     if request.method == 'POST':
@@ -57,6 +61,7 @@ def convert_speech_to_text(request):
     else:
         return render(request, 'pages/speech_to_text.html')
     
+# Writes the converted text to a file, avoiding duplicates.
 def output_text(text):
     try:
         with open("da_web/output.txt", "r+") as f:
@@ -86,6 +91,7 @@ def output_text(text):
 #         print()
 #     return
 
+
 # Define the ChatCompletionMessage class
 class ChatCompletionMessage:
     def __init__(self, message):
@@ -96,7 +102,8 @@ class ChatCompletionMessage:
         # return {'message': self.message}
         return self.message
     
-
+# Handles the simulation of conversations between the user and AI.
+# Posts user input and returns AI response as JSON.
 def simulate_conversation(request):
     if request.method == 'POST':
         user_input = request.POST.get('user_input', '')
@@ -132,6 +139,7 @@ def load_conversations(request):
     # print(conversation_log)
     return render(request, 'pages/load_conversations.html', {'conversation_log': conversation_log})
 
+# Renders a page displaying logged conversations from a JSON file.
 def log_conversation(role, message):
     # Create the conversation_data directory if it doesn't exist
     conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
@@ -164,7 +172,7 @@ def log_conversation(role, message):
     file.close()
 
 
-# Create your views here.
+# View function to render the homepage with necessary context.
 def home(request):
     # Create the conversation_data directory if it doesn't exist
     conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
@@ -203,7 +211,7 @@ def word_value():
 def feedback(request):
     return render(request, 'pages/home.html')
 
-
+# Compares user input against predefined phrases to identify door-to-door sales credentials.
 def word_recognition(user_input):
     door_to_door_sales_credential_phrases = [
         "I'm working for"
@@ -232,33 +240,33 @@ def word_recognition(user_input):
 # recognition_result = word_recognition(user_input)
 # print("Recognition Result:", recognition_result)
 
+# Reads conversation data from a JSON file and displays it on a webpage.
+# It separates messages by role (user or AI model) and combines them into pairs for display.
 def display_json_data(request):
-    # Create the conversation_data directory if it doesn't exist
+    # Ensuring the necessary directory exists or creating it if it doesn't
     conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
     if not os.path.exists(conversation_data_dir):
         os.makedirs(conversation_data_dir)
     
-    # Construct the file path for the conversation log JSON file
+    # Preparing the file path for reading the conversation log
     file_name = 'conversation_log.json'
     file_path = os.path.join(conversation_data_dir, file_name)
-    # Read the JSON file and load the data
+    
+    # Opening and reading the JSON file
     with open(file_path) as f:
         data = json.load(f)
 
-    # Separate user and AI model messages
+    # Separating messages by role and combining them into pairs for display
     user_messages = [item["message"] for item in data if item["role"] == "user"]
     ai_model_messages = [item["message"] for item in data if item["role"] == "ai_model"]
-
-    # Combine user and AI model messages into pairs
     messages = list(zip(user_messages, ai_model_messages))
 
-    # Close the file
-    f.close()
-
-    # Pass the messages list to the template
+    # Passing the messages to the template for rendering
     return render(request, 'pages/display_json.html', {'messages': messages})
 
 
+#  Filters and displays messages from the conversation log where the role is 'user'.
+# It handles the case where the conversation log file might not exist.
 def filter_user_messages(request):
     # Create the conversation_data directory if it doesn't exist
     conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
@@ -319,7 +327,8 @@ def filter_user_messages(request):
 #     # return render(request, 'pages/display_json.html', {'json_data': df.to_html()})
 #     return render(request, 'pages/display_json.html', {'html_table': html_table})
 
-
+# Searches the conversation log for messages containing any of the specified keywords.
+# Returns a list of matching messages.
 def search_keywords(keywords):
     # Create the conversation_data directory if it doesn't exist
     conversation_data_dir = os.path.join(settings.BASE_DIR, 'da_web', 'conversation_data')
